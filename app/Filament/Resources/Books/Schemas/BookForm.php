@@ -1,0 +1,106 @@
+<?php
+
+namespace App\Filament\Resources\Books\Schemas;
+
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Schema;
+
+class BookForm
+{
+    public static function configure(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                Section::make('Kitap Bilgileri')
+                    ->schema([
+                        TextInput::make('title')
+                            ->label('Başlık')
+                            ->required()
+                            ->maxLength(255),
+
+                        TextInput::make('slug')
+                            ->label('Slug')
+                            ->required()
+                            ->maxLength(255),
+                        
+                        Textarea::make('description')
+                            ->label('Açıklama')
+                            ->required()
+                            ->rows(4),
+                        
+                        Select::make('language')
+                            ->label('Dil')
+                            ->required()
+                            ->options([
+                                'tr' => 'Türkçe',
+                                'en' => 'English',
+                                'ru' => 'Русский',
+                                'az' => 'Azərbaycan',
+                            ])
+                            ->default('tr')
+                            ->reactive(),
+                        
+                        TextInput::make('price')
+                            ->label('Fiyat')
+                            ->required()
+                            ->numeric()
+                            ->prefix(fn ($get) => match ($get('language')) {
+                                'tr' => '₺',
+                                'en' => '$',
+                                'ru' => '₽',
+                                'az' => '₼',
+                                default => '$',
+                            })
+                            ->step(0.01)
+                            ->minValue(0)
+                            ->reactive(),
+                    ]),
+
+               
+                
+                Section::make('Dosyalar')
+                    ->schema([
+                        FileUpload::make('cover_image')
+                            ->label('Kapak Görseli')
+                            ->image()
+                            ->disk('s3')
+                            ->maxSize(10240) // 10 MB
+                            ->directory('books/covers')
+                            ->visibility('public')
+                            ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
+                            ->storeFileNamesIn('cover_image_filename'),
+                         
+                       
+                        
+                        FileUpload::make('preview_pdf')
+                            ->label('Ön İzleme PDF')
+                            ->acceptedFileTypes(['application/pdf'])
+                            ->maxSize(51200) // 50 MB
+                            ->disk('s3')
+                            ->directory('books/previews')
+                            ->visibility('public')
+                            ->storeFileNamesIn('preview_pdf_filename'),
+                        
+                        FileUpload::make('full_pdf')
+                            ->label('Tam PDF')
+                            ->acceptedFileTypes(['application/pdf'])
+                            ->maxSize(102400) // 100 MB
+                            ->disk('s3')
+                            ->directory('books/full')
+                            ->visibility('public')
+                            ->storeFileNamesIn('full_pdf_filename')
+                    ]),
+                    Section::make('Paddle Bilgileri')
+                    ->schema([
+                        TextInput::make('paddle_product_id')
+                            ->label('Paddle Product ID'),
+                        TextInput::make('paddle_price_id')
+                            ->label('Paddle Price ID'),
+                    ]),
+            ]);
+    }
+}

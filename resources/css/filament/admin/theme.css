@@ -1,0 +1,16 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+
+
+
+
+.fi-body {
+    background-color: #ffffff;
+}
+
+.fi-text-color-900 {
+    --text: #ffffff;
+}
