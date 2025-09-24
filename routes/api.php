@@ -40,11 +40,10 @@ Route::prefix('certificates')->group(function () {
 
 // Award API Routes
 Route::prefix('awards')->group(function () {
-    Route::get('/, [AwardController::class, 'index']);
+    Route::get('/', [AwardController::class, 'index']);
     Route::get('/featured', [AwardController::class, 'featured']);
     Route::get('/{slug}', [AwardController::class, 'show']);
 });
-
 // Book API Routes
 Route::prefix('books')->group(function () {
     Route::get('/', [BookController::class, 'index']);
