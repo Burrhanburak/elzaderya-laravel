@@ -10,6 +10,9 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Support\Str;
 
 class AwardForm
 {
@@ -20,9 +23,14 @@ class AwardForm
                 Section::make('Ödül Bilgileri')
                     ->schema([
                         TextInput::make('name')
-                            ->label('Ödül Adı')
-                            ->required()
-                            ->maxLength(255),
+                        ->label('Ödül Adı')
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
+                            if (($get('slug') ?? '') !== Str::slug($old)) return;
+                            $set('slug', Str::slug($state));
+                        }),
+                      
+                        TextInput::make('slug') ,
                         
                         Textarea::make('description')
                             ->label('Açıklama')

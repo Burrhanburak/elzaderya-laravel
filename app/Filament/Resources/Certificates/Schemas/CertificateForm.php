@@ -10,6 +10,9 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Support\Str;
 
 class CertificateForm
 {
@@ -19,10 +22,17 @@ class CertificateForm
             ->components([
                 Section::make('Sertifika Bilgileri')
                     ->schema([
+
                         TextInput::make('name')
-                            ->label('Sertifika Adı')
-                            ->required()
-                            ->maxLength(255),
+                        ->label('Sertifika Adı')
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
+                            if (($get('slug') ?? '') !== Str::slug($old)) return;
+                            $set('slug', Str::slug($state));
+                        }),
+                     
+
+                        TextInput::make('slug') ,
                         
                         Textarea::make('description')
                             ->label('Açıklama')
