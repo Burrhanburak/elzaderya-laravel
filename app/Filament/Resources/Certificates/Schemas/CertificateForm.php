@@ -32,7 +32,7 @@ class CertificateForm
                         FileUpload::make('file_url')
                             ->label('Sertifika Dosyası')
                             ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
-                            ->maxSize(20480) // 20 MB
+                            ->maxSize(204800) // 200 MB
                             ->disk('s3')
                             ->image()
                             ->directory('certificates')

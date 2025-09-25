@@ -22,6 +22,7 @@ class BlogsTable
                     ->disk('s3')
                     ->square()
                     ->size(60),
+                    
                 
                 TextColumn::make('title')
                     ->label('Başlık')

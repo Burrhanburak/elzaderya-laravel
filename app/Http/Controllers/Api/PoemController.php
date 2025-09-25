@@ -51,6 +51,14 @@ class PoemController extends Controller
      */
     public function show($slug)
     {
+        // Validate slug parameter
+        if (empty($slug) || $slug === 'null' || $slug === 'undefined') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid slug parameter'
+            ], 400);
+        }
+
         $poem = Poem::where('slug', $slug)->first();
 
         if (!$poem) {

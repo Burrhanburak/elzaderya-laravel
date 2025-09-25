@@ -49,6 +49,14 @@ class CategoryController extends Controller
 
     public function show($slug)
     {
+        // Validate slug parameter
+        if (empty($slug) || $slug === 'null' || $slug === 'undefined') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid slug parameter'
+            ], 400);
+        }
+
         $category = Category::where('slug', $slug)->first();
 
         if (!$category) {

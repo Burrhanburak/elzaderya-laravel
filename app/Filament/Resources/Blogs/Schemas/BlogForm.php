@@ -24,6 +24,11 @@ class BlogForm
                             ->label('Başlık')
                             ->required()
                             ->maxLength(255),
+
+                        TextInput::make('slug')
+                            ->label('Slug')
+                            ->required()
+                            ->maxLength(255),
                         
                         FileUpload::make('cover_image')
                             ->label('Kapak Görseli')
