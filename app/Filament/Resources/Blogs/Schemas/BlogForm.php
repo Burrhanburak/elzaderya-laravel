@@ -9,6 +9,10 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+
+use Illuminate\Support\Str;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
 
@@ -21,14 +25,14 @@ class BlogForm
                 Section::make('Blog Bilgileri')
                     ->schema([
                         TextInput::make('title')
-                            ->label('Başlık')
-                            ->required()
-                            ->maxLength(255),
-
-                        TextInput::make('slug')
-                            ->label('Slug')
-                            ->required()
-                            ->maxLength(255),
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
+                            if (($get('slug') ?? '') !== Str::slug($old)) return;
+                            $set('slug', Str::slug($state));
+                        }),
+                    
+                    
+                    TextInput::make('slug') ,
                         
                         FileUpload::make('cover_image')
                             ->label('Kapak Görseli')
