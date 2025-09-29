@@ -18,10 +18,16 @@ return new class extends Migration
             $table->string('cover_image')->nullable();
             $table->string('preview_pdf')->nullable();
             $table->string('full_pdf')->nullable();
-            $table->decimal('price', 8, 2);
+           
+            // fiyat alanları
+            $table->decimal('price', 8, 2)->default(0);
+            $table->string('currency', 3)->default('USD'); // Polar API'den price_currency geliyor
+
+            // Polar entegrasyonu
+            $table->string('polar_product_id')->nullable(); // pol_prod_xxx
+         
             $table->string('slug')->nullable();
-            $table->string('paddle_product_id')->nullable();  // pro_xxx
-            $table->string('paddle_price_id')->nullable();    // pri_xxx
+          
             $table->string('cover_image_filename')->nullable();
             $table->string('preview_pdf_filename')->nullable();
             $table->string('full_pdf_filename')->nullable();

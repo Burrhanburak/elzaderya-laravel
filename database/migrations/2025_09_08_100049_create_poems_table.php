@@ -26,8 +26,14 @@ return new class extends Migration
             $table->integer('preview_lines')->default(3);
         
             // Paddle entegrasyonu
-            $table->string('paddle_product_id')->nullable();
-            $table->string('paddle_price_id')->nullable();
+         
+            // fiyat alanları
+            $table->decimal('price', 8, 2)->default(0);
+            $table->string('currency', 3)->default('USD'); // Polar API'den price_currency geliyor
+
+            // Polar entegrasyonu
+            $table->string('polar_product_id')->nullable(); // pol_prod_xxx
+        
             $table->string('language', 5)->default('tr');
         
             $table->timestamps();

@@ -76,19 +76,13 @@ class PoemsTable
 
                 TextColumn::make('price')
                     ->label('Fiyat')
-                    ->money(fn ($record) => match ($record->language) {
-                        'tr' => 'TRY',
-                        'en' => 'USD',
-                        'ru' => 'RUB',
-                        'az' => 'AZN',
-                        default => 'USD',
-                    })
+                    ->money('USD')
                     ->sortable(),
 
-                TextColumn::make('paddle_product_id')
-                    ->label('Paddle Product ID'),
-                TextColumn::make('paddle_price_id')
-                    ->label('Paddle Price ID'),
+                TextColumn::make('polar_product_id')
+                    ->label('Polar Product ID'),
+                // TextColumn::make('polar_price_id')
+                //     ->label('Paddle Price ID'),
                 
                 TextColumn::make('created_at')
                     ->label('Oluşturulma Tarihi')

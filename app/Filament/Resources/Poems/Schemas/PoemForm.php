@@ -49,6 +49,7 @@ class PoemForm
                         
                         TextInput::make('price')
                             ->label('Fiyat')
+                            ->required()
                             ->numeric()
                             ->prefix(fn ($get) => match ($get('language')) {
                                 'tr' => '₺',
@@ -93,12 +94,18 @@ class PoemForm
                             ->storeFileNamesIn('full_pdf_filename')
                     ]),
 
-                    Section::make('Paddle Bilgileri')
+
+                    Section::make('Polar Bilgileri')
                     ->schema([
-                        TextInput::make('paddle_product_id')
-                            ->label('Paddle Product ID'),
-                        TextInput::make('paddle_price_id')
-                            ->label('Paddle Price ID'),
+                        TextInput::make('currency')
+                            ->label('Para Birimi')
+                            ->default('USD')
+                            ->disabled()
+                            ->helperText('Polar sadece USD destekler, fiyat tarayıcı diline göre gösterilir'),
+                        TextInput::make('polar_product_id')
+                            ->label('Polar Product ID'),
+                        // TextInput::make('polar_price_id')
+                        //     ->label('Polar Price ID'),
                     ]),
             ]);
     }

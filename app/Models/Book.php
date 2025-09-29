@@ -17,8 +17,8 @@ class Book extends Model
         'preview_pdf_filename',
         'full_pdf_filename',
         'price',
-        'paddle_product_id',
-        'paddle_price_id',
+        'currency',
+        'polar_product_id',
         'language',
     ];
 

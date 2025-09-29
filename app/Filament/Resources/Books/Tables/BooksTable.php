@@ -76,13 +76,7 @@ class BooksTable
                 
                 TextColumn::make('price')
                     ->label('Fiyat')
-                    ->money(fn ($record) => match ($record->language) {
-                        'tr' => 'TRY',
-                        'en' => 'USD',
-                        'ru' => 'RUB',
-                        'az' => 'AZN',
-                        default => 'USD',
-                    })
+                    ->money('USD')
                     ->sortable(),
                 
                 TextColumn::make('language')
@@ -103,10 +97,10 @@ class BooksTable
                         default => 'gray',
                     }),
 
-                    TextInputColumn::make('paddle_product_id')
-                    ->label('Paddle Product ID'),
-                TextInputColumn::make('paddle_price_id')
-                    ->label('Paddle Price ID'),
+                    TextInputColumn::make('polar_product_id')
+                    ->label('Polar Product ID'),
+                // TextInputColumn::make('polar_price_id')
+                //     ->label('Paddle Price ID'),
                 
                 
                 TextColumn::make('created_at')

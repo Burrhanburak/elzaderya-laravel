@@ -60,7 +60,9 @@ Route::prefix('categories')->group(function () {
 
 // Checkout API Routes
 Route::prefix('v1')->group(function () {
+    Route::get('/test-polar', [CheckoutController::class, 'testPolar']);
     Route::post('/checkout/{type}/{id}', [CheckoutController::class, 'create']);
+    Route::post('/process-success', [CheckoutController::class, 'processSuccess']);
     Route::post('/download/{type}/{id}', [DownloadController::class, 'verifyAccess']);
     Route::post('/free-purchase/{type}/{id}', [FreePurchaseController::class, 'create']);
 });
