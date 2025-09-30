@@ -18,7 +18,9 @@ class CertificatesTable
                 ImageColumn::make('file_url')
                     ->label('Dosya')
                     ->square()
+                    ->disk('s3')
                     ->size(60),
+
                 
                 TextColumn::make('name')
                     ->label('Sertifika Adı')
