@@ -17,6 +17,11 @@ Route::get('/checkout/test', function (Illuminate\Http\Request $request) {
     
     return view('checkout.test', compact('type', 'id', 'title', 'price', 'email', 'paddlePriceId'));
 });
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
+
+
 
 // Success page
 Route::get('/success', function () {

@@ -21,10 +21,11 @@ return new class extends Migration
            
             // fiyat alanları
             $table->decimal('price', 8, 2)->default(0);
-            $table->string('currency', 3)->default('USD'); // Polar API'den price_currency geliyor
+            $table->string('currency', 3)->default('TRY'); 
 
-            // Polar entegrasyonu
-            $table->string('polar_product_id')->nullable(); // pol_prod_xxx
+
+            // Lemon entegrasyonu
+            $table->string('lemon_variant_id')->nullable();
          
             $table->string('slug')->nullable();
           

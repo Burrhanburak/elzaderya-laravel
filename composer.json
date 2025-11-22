@@ -14,6 +14,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "league/flysystem-aws-s3-v3": "^3.29",
+        "lemonsqueezy/laravel": "^1.8",
         "mostafaznv/pdf-optimizer": "^1.2",
         "polar-sh/sdk": "^0.5.1",
         "predis/predis": "^3.2",

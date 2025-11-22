@@ -18,7 +18,7 @@ class Book extends Model
         'full_pdf_filename',
         'price',
         'currency',
-        'polar_product_id',
+        'lemon_variant_id',
         'language',
     ];
 

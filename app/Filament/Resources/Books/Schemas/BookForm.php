@@ -100,13 +100,12 @@ class BookForm
                     ->schema([
                         TextInput::make('currency')
                             ->label('Para Birimi')
-                            ->default('USD')
+                            ->default('TRY')
                             ->disabled()
-                            ->helperText('Polar sadece USD destekler, fiyat tarayıcı diline göre gösterilir'),
-                        TextInput::make('polar_product_id')
-                            ->label('Polar Product ID'),
-                        // TextInput::make('polar_price_id')
-                        //     ->label('Polar Price ID'),
+                            ->helperText('Lemon sadece TRY destekler, fiyat tarayıcı diline göre gösterilir'),
+                        TextInput::make('lemon_variant_id')
+                            ->label('Lemon Variant ID')
+                            ->nullable(),
                     ]),
             ]);
     }

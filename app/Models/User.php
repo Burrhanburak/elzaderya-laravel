@@ -6,7 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Paddle\Billable;
+use LemonSqueezy\Laravel\Billable;
 use Filament\Panel;
 use Filament\Models\Contracts\FilamentUser;
 

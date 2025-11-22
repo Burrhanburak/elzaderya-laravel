@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "945bf911ca0cb9824e03b6c3149473d5",
+    "content-hash": "19230b1dcda9b204c83a86f96dd9839c",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -3965,6 +3965,94 @@
                 }
             ],
             "time": "2024-12-08T08:18:47+00:00"
+        },
+        {
+            "name": "lemonsqueezy/laravel",
+            "version": "1.8.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lmsqueezy/laravel.git",
+                "reference": "937564238986bc07f44db97947a754007b707d80"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lmsqueezy/laravel/zipball/937564238986bc07f44db97947a754007b707d80",
+                "reference": "937564238986bc07f44db97947a754007b707d80",
+                "shasum": ""
+            },
+            "require": {
+                "ext-pcntl": "*",
+                "guzzlehttp/guzzle": "^7.0",
+                "laravel/framework": "^11.0|^12.0",
+                "laravel/prompts": "^0.2|^0.3",
+                "moneyphp/money": "^4.0",
+                "nesbot/carbon": "^2.0|^3.0",
+                "php": "~8.2.0|~8.3.0|~8.4.0"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.20",
+                "orchestra/testbench": "^9.0|^10.0",
+                "pestphp/pest": "^2.0|^3.0",
+                "phpstan/phpstan": "^2.1",
+                "roave/security-advisories": "dev-latest"
+            },
+            "suggest": {
+                "ext-intl": "Allows for more locales besides the default \"en\" when formatting money values."
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LemonSqueezy\\Laravel\\LemonSqueezyServiceProvider"
+                    ]
+                },
+                "branch-alias": {
+                    "dev-main": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LemonSqueezy\\Laravel\\": "src/",
+                    "LemonSqueezy\\Laravel\\Database\\Factories\\": "database/factories/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dries Vints",
+                    "homepage": "https://driesvints.com"
+                },
+                {
+                    "name": "Steve McDougall",
+                    "email": "juststevemcd@gmail.com",
+                    "homepage": "https://juststeveking.link",
+                    "role": "Maintainer"
+                }
+            ],
+            "description": "A package to easily integrate your Laravel application with Lemon Squeezy.",
+            "keywords": [
+                "billing",
+                "laravel",
+                "lemon squeezy"
+            ],
+            "support": {
+                "issues": "https://github.com/lmsqueezy/laravel/issues",
+                "source": "https://github.com/lmsqueezy/laravel"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sponsors/juststeveking",
+                    "type": "github"
+                },
+                {
+                    "url": "https://www.paypal.com/paypalme/driesvints",
+                    "type": "paypal"
+                }
+            ],
+            "time": "2025-04-11T11:59:45+00:00"
         },
         {
             "name": "livewire/livewire",

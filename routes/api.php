@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\CertificateController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\DownloadController;
 use App\Http\Controllers\Api\FreePurchaseController;
-use App\Http\Controllers\Api\PaddleWebhookController;
+use App\Http\Controllers\Api\GalleryController;
 use App\Http\Controllers\Api\PoemController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -44,6 +44,14 @@ Route::prefix('awards')->group(function () {
     Route::get('/featured', [AwardController::class, 'featured']);
     Route::get('/{slug}', [AwardController::class, 'show']);
 });
+
+// Gallery API Routes
+Route::prefix('galleries')->group(function () {
+    Route::get('/', [GalleryController::class, 'index']);
+    Route::get('/active', [GalleryController::class, 'active']);
+    Route::get('/{id}', [GalleryController::class, 'show']);
+});
+
 // Book API Routes
 Route::prefix('books')->group(function () {
     Route::get('/', [BookController::class, 'index']);
@@ -67,5 +75,6 @@ Route::prefix('v1')->group(function () {
     Route::post('/free-purchase/{type}/{id}', [FreePurchaseController::class, 'create']);
 });
 
-// Paddle Webhook
-Route::post('/paddle/webhook', [PaddleWebhookController::class, 'handle']);
+// Lemon Squeezy Webhook
+Route::post('/lemon/webhook', [\App\Http\Controllers\LemonWebhookController::class, 'handle']);
+

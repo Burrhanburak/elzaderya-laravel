@@ -15,6 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
+
+        // Exclude Lemon Squeezy webhooks from CSRF protection
+        $middleware->validateCsrfTokens(except: [
+            'api/lemon/*',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -18,14 +18,16 @@ class PurchaseConfirmation extends Mailable
 
     public $order;
     public $product;
+    public $downloadUrls;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Order $order)
+    public function __construct(Order $order, array $downloadUrls = [])
     {
         $this->order = $order;
         $this->product = $order->getProduct();
+        $this->downloadUrls = $downloadUrls;
     }
 
     /**
@@ -48,6 +50,7 @@ class PurchaseConfirmation extends Mailable
             with: [
                 'order' => $this->order,
                 'product' => $this->product,
+                'downloadUrls' => $this->downloadUrls,
             ],
         );
     }

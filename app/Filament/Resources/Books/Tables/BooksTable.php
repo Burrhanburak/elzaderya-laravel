@@ -76,7 +76,7 @@ class BooksTable
                 
                 TextColumn::make('price')
                     ->label('Fiyat')
-                    ->money('USD')
+                    ->money('TRY')
                     ->sortable(),
                 
                 TextColumn::make('language')
@@ -97,10 +97,8 @@ class BooksTable
                         default => 'gray',
                     }),
 
-                    TextInputColumn::make('polar_product_id')
-                    ->label('Polar Product ID'),
-                // TextInputColumn::make('polar_price_id')
-                //     ->label('Paddle Price ID'),
+                    TextInputColumn::make('lemon_variant_id')
+                    ->label('Lemon Variant ID'),
                 
                 
                 TextColumn::make('created_at')

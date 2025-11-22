@@ -7,45 +7,12 @@ use App\Models\Book;
 use App\Models\Poem;
 use App\Models\Order;
 use Illuminate\Http\Request;
-use Polar\Polar;
-use Polar\SDKConfiguration;
-use Polar\Models\Components\CheckoutCreate;
-use GuzzleHttp\Client;
 use App\Mail\PurchaseConfirmation;
 use Illuminate\Support\Facades\Mail;
+use LemonSqueezy\Laravel\Checkout;
 
 class CheckoutController extends Controller
 {
-    public function testPolar()
-    {
-        try {
-            $polar = Polar::builder()
-                ->setClient(new Client([
-                    'timeout' => 30,
-                    'debug' => false,
-                ]))
-                ->setServerUrl('https://sandbox-api.polar.sh')
-                ->setSecurity(env('POLAR_ACCESS_TOKEN'))
-                ->build();
-
-            // Test simple API call - get organizations
-            $organizations = $polar->organizations->list();
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Polar API connection successful',
-                'organizations_available' => true,
-            ]);
-            
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Polar API test failed',
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ], 500);
-        }
-    }
 
     public function create(Request $request, $type, $id)
     {
@@ -57,14 +24,14 @@ class CheckoutController extends Controller
         $model = ($type === 'book') ? Book::findOrFail($id) : Poem::findOrFail($id);
 
         try {
-            $checkoutUrl = $this->createPolarCheckout($model, $type, $request);
+            $checkoutUrl = $this->createLemonSqueezyCheckout($model, $type, $request);
 
             return response()->json([
                 'success' => true,
                 'checkout_url' => $checkoutUrl,
             ]);
         } catch (\Exception $e) {
-            \Log::error('Polar checkout creation failed', [
+            \Log::error('Lemon Squeezy checkout creation failed', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'file' => $e->getFile(),
@@ -73,11 +40,10 @@ class CheckoutController extends Controller
                 'id' => $id,
                 'email' => $request->email,
                 'model_data' => [
-                    'polar_product_id' => $model->polar_product_id ?? 'null',
+                    'lemon_variant_id' => $model->lemon_variant_id ?? 'null',
                     'title' => $model->title ?? 'null',
                     'id' => $model->id ?? 'null'
                 ],
-                'polar_access_token_set' => !empty(env('POLAR_ACCESS_TOKEN')),
             ]);
 
             return response()->json([
@@ -90,72 +56,13 @@ class CheckoutController extends Controller
         }
     }
 
-    private function createPolarCheckout($model, $type, $request)
-    {
-        \Log::info('Creating Polar checkout', [
-            'model_id' => $model->id,
-            'polar_product_id' => $model->polar_product_id,
-            'type' => $type,
-            'customer_email' => $request->email,
-        ]);
-
-        try {
-            $polar = Polar::builder()
-                ->setClient(new Client([
-                    'timeout' => 30,
-                    'debug' => false, // Guzzle debug'ını kapatıyoruz
-                ]))
-                ->setServerUrl('https://sandbox-api.polar.sh')
-                ->setSecurity(env('POLAR_ACCESS_TOKEN'))
-                ->build();
-
-            // CheckoutCreate objesi ile Polar checkout oluşturuyoruz
-            $checkoutCreate = new CheckoutCreate(
-                products: [$model->polar_product_id],
-                customerEmail: $request->email,
-                customerName: $request->name,
-                successUrl: url("/tr/success?type={$type}&id={$model->id}&email=" . urlencode($request->email)),
-                metadata: [
-                    'purchasable_type' => $type,
-                    'purchasable_id' => (string)$model->id,
-                    'title' => $model->title,
-                    'cancel_url' => url("/checkout/cancel?type={$type}&id={$model->id}"),
-                ]
-            );
-
-            \Log::info('CheckoutCreate object created', [
-                'products' => $checkoutCreate->products,
-                'customerEmail' => $checkoutCreate->customerEmail,
-                'successUrl' => $checkoutCreate->successUrl,
-            ]);
-
-            $checkoutResponse = $polar->checkouts->create($checkoutCreate);
-
-            \Log::info('Polar checkout created successfully', [
-                'checkout_url' => $checkoutResponse->checkout->url ?? 'No URL returned',
-                'status_code' => $checkoutResponse->statusCode,
-            ]);
-
-            return $checkoutResponse->checkout->url;
-
-        } catch (\GuzzleHttp\Exception\RequestException $e) {
-            \Log::error('Guzzle Request Exception', [
-                'message' => $e->getMessage(),
-                'response_body' => $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : 'No response body',
-                'status_code' => $e->hasResponse() ? $e->getResponse()->getStatusCode() : 'No status code',
-            ]);
-            throw new \Exception('HTTP Request failed: ' . $e->getMessage());
-        } catch (\Exception $e) {
-            \Log::error('General exception in createPolarCheckout', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-            throw $e;
-        }
-    }
-
     public function processSuccess(Request $request)
     {
+        \Log::info('=== PROCESS SUCCESS REQUEST RECEIVED ===', [
+            'request_data' => $request->all(),
+            'timestamp' => now()->toDateTimeString(),
+        ]);
+
         $request->validate([
             'type' => 'required|string|in:book,poem',
             'id' => 'required|integer',
@@ -178,29 +85,48 @@ class CheckoutController extends Controller
                 ], 404);
             }
 
-            // Check if order already exists for this customer_session_token
+            // Check if order already exists
             $existingOrder = null;
+
             if ($customerSessionToken) {
+                // If we have customer_session_token, check by that
                 $existingOrder = Order::where('transaction_id', $customerSessionToken)
                     ->where('email', $email)
                     ->where('purchasable_type', $type)
                     ->where('purchasable_id', $id)
                     ->first();
+            } else {
+                // If no customer_session_token, check if user already purchased this item recently (last 5 minutes)
+                $existingOrder = Order::where('email', $email)
+                    ->where('purchasable_type', $type)
+                    ->where('purchasable_id', $id)
+                    ->where('created_at', '>=', now()->subMinutes(5))
+                    ->first();
             }
 
             if (!$existingOrder) {
+                // Generate transaction_id if not provided
+                $transactionId = $customerSessionToken ?? 'manual_' . uniqid() . '_' . time();
+
                 // Create new order
                 $order = Order::create([
                     'email' => $email,
                     'purchasable_type' => $type,
                     'purchasable_id' => $id,
-                    'transaction_id' => $customerSessionToken,
+                    'transaction_id' => $transactionId,
                     'status' => 'paid',
                     'amount' => $model->price,
                 ]);
 
-                // Send confirmation email
-                Mail::to($email)->send(new PurchaseConfirmation($order));
+                \Log::info('Order created via processSuccess', [
+                    'order_id' => $order->id,
+                    'email' => $email,
+                    'transaction_id' => $transactionId,
+                    'has_customer_session_token' => !empty($customerSessionToken),
+                ]);
+
+                // Send confirmation email (without Lemon Squeezy download URLs for manual orders)
+                Mail::to($email)->send(new PurchaseConfirmation($order, []));
 
                 // Mark email as sent
                 $order->update([
@@ -223,7 +149,7 @@ class CheckoutController extends Controller
                 // Order already exists
                 if (!$existingOrder->email_sent) {
                     // Resend email if not sent before
-                    Mail::to($email)->send(new PurchaseConfirmation($existingOrder));
+                    Mail::to($email)->send(new PurchaseConfirmation($existingOrder, []));
                     
                     $existingOrder->update([
                         'email_sent' => true,
@@ -256,6 +182,97 @@ class CheckoutController extends Controller
                 'success' => false,
                 'message' => 'Error processing order: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    private function createLemonSqueezyCheckout($model, $type, $request)
+    {
+        \Log::info('Creating Lemon Squeezy checkout', [
+            'model_id' => $model->id,
+            'lemon_variant_id' => $model->lemon_variant_id,
+            'type' => $type,
+            'customer_email' => $request->email,
+        ]);
+
+        if (empty($model->lemon_variant_id)) {
+            throw new \Exception('Lemon Squeezy variant ID not configured for this product');
+        }
+
+        try {
+            $storeId = config('lemon-squeezy.store');
+
+            \Log::info('Lemon Squeezy checkout data before creation', [
+                'email' => $request->email,
+                'name' => $request->name,
+                'has_name' => !empty($request->name),
+                'store_id' => $storeId,
+            ]);
+
+            // Create checkout with prefilled data
+            $checkoutBuilder = Checkout::make($storeId, $model->lemon_variant_id);
+
+            // Prefill customer data - these should appear in the checkout form
+            $email = trim($request->email);
+            $name = !empty($request->name) ? trim($request->name) : null;
+
+            \Log::info('Setting prefill data', [
+                'email_to_prefill' => $email,
+                'name_to_prefill' => $name,
+            ]);
+
+            $checkoutBuilder->withEmail($email);
+
+            if ($name) {
+                $checkoutBuilder->withName($name);
+            }
+
+            // Add custom data for webhook
+            $checkoutBuilder->withCustomData([
+                'purchasable_type' => $type,
+                'purchasable_id' => (string)$model->id,
+                'title' => $model->title,
+            ]);
+
+            // Set redirect URL - use frontend URL
+            $frontendUrl = config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:3000'));
+            $redirectUrl = $frontendUrl . "/tr/success?type={$type}&id={$model->id}&email=" . urlencode($email);
+            $checkoutBuilder->redirectTo($redirectUrl);
+
+            \Log::info('About to call Lemon Squeezy API', [
+                'redirect_url' => $redirectUrl,
+            ]);
+
+            // Debug: Log the internal state of checkout builder
+            try {
+                $reflection = new \ReflectionClass($checkoutBuilder);
+                $checkoutDataProperty = $reflection->getProperty('checkoutData');
+                $checkoutDataProperty->setAccessible(true);
+                $customProperty = $reflection->getProperty('custom');
+                $customProperty->setAccessible(true);
+
+                \Log::info('Checkout Builder Internal State', [
+                    'checkout_data' => $checkoutDataProperty->getValue($checkoutBuilder),
+                    'custom_data' => $customProperty->getValue($checkoutBuilder),
+                ]);
+            } catch (\Exception $e) {
+                \Log::warning('Could not inspect checkout builder', ['error' => $e->getMessage()]);
+            }
+
+            // Get checkout URL - this makes the API call
+            $checkoutUrl = $checkoutBuilder->url();
+
+            \Log::info('Lemon Squeezy checkout created successfully', [
+                'checkout_url' => $checkoutUrl,
+            ]);
+
+            return $checkoutUrl;
+
+        } catch (\Exception $e) {
+            \Log::error('Lemon Squeezy checkout creation failed', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw new \Exception('Lemon Squeezy checkout failed: ' . $e->getMessage());
         }
     }
 
