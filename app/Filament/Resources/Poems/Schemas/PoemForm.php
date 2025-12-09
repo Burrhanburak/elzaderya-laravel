@@ -99,7 +99,7 @@ class PoemForm
                     ->schema([
                         TextInput::make('currency')
                             ->label('Para Birimi')
-                            ->default('USD')
+                            ->default('TRY')
                             ->disabled()
                             ->helperText('Polar sadece USD destekler, fiyat tarayıcı diline göre gösterilir'),
                         TextInput::make('lemon_variant_id')
